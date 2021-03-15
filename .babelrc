@@ -1,0 +1,9 @@
+{
+  "plugins": [
+    ["import", {
+        "libraryName": "antd",
+        "libraryDirectory": "lib",  // libraryDirectory default lib
+        "style": "css" ,
+    }],
+  ],
+}

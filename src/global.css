@@ -1,0 +1,11 @@
+html, body, #root {
+  height: auto!important;
+}
+
+body {
+  margin: 0;
+}
+
+* {
+  box-sizing: border-box;
+}

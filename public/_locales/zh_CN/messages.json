@@ -1,0 +1,55 @@
+{
+	"pluginDesc": {"message": "最酷的以太坊Gas Price预估工具"},
+	"pluginName": {"message": "GasNow - ETH Gas Price 预测系统"},
+	"rapid": {
+		"message": "极速"
+	},
+	"fast": {
+		"message": "高速"
+	},
+	"standard": {
+		"message": "一般"
+	},
+	"slow": {
+		"message": "缓慢"
+	},
+	"minute": {
+		"message": "分钟"
+	},
+	"minutes": {
+		"message": "分钟"
+	},
+	"seconds": {
+		"message": "秒"
+	},
+  "settingTitle": {
+    "message": "设置"
+  },
+  "defaultTitle": {
+    "message": "默认显示"
+  },
+  "defaultGasMsg": {
+    "message": "数值将显示在浏览器插件图标上。建议将插件固定"
+  },
+  "noticeTitle": {
+    "message": "推送通知"
+  },
+  "noticeTitle2": {
+    "message": "(当默认报价 < 监控值时)"
+  },
+  "noticeMsg": {
+    "message": "请允许通知权限；通知间隔：10min"
+  },
+  "noticePlaceholder": {
+    "message": "监控值"
+  },
+  "noticeSuccessMsg": {
+    "message": "设置成功"
+  },
+  "notificationMsg": {
+    "message": "ETH GasPrice 报价—GasNow"
+  },
+  "aboutUsTitle": {
+    "message": "关于我们"
+  }
+}

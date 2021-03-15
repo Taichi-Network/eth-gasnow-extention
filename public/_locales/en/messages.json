@@ -1,0 +1,56 @@
+{
+
+    "pluginDesc": {"message": "The coolest tool to estimate the gas price of Ethereum"},
+    "pluginName": {"message": "GasNow - ETH GasPrice forecast system"},
+  "rapid": {
+    "message": "Rapid"
+  },
+  "fast": {
+    "message": "Fast"
+  },
+  "standard": {
+    "message": "Standard"
+  },
+  "slow": {
+    "message": "Slow"
+  },
+  "minute": {
+    "message": "Minute"
+  },
+  "minutes": {
+    "message": "Minutes"
+  },
+  "seconds": {
+    "message": "Seconds"
+  },
+  "settingTitle": {
+    "message": "Setting"
+  },
+  "defaultTitle": {
+    "message": "Default display option"
+  },
+  "defaultGasMsg": {
+    "message": "The values will be displayed over the icon of this extension. It's recommended to pin this extension."
+  },
+  "noticeTitle": {
+    "message": "Notifications"
+  },
+  "noticeTitle2": {
+    "message": "(It only works when the value getting from default option is lower than the alarm value)"
+  },
+  "noticeMsg": {
+    "message": "Please allow the extension to push notifications. A notification will pop up every 10 minutes."
+  },
+  "noticePlaceholder": {
+    "message": "Alarm"
+  },
+  "noticeSuccessMsg": {
+    "message": "Done setting!"
+  },
+  "notificationMsg": {
+    "message": "ETH GasPrice forecast by GasNow"
+  },
+  "aboutUsTitle": {
+    "message": "About us"
+  }
+}
