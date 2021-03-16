@@ -93,7 +93,7 @@ function getGas() {
 
 function createWebSocketConnection() {
   if('WebSocket' in window){
-    ws = new WebSocket('wss://gasnow-test.sparkpool.com/ws');
+    ws = new WebSocket('wss://gasnow-test.sparkpool.com/ws/gasprice');
 
     ws.onopen = function() {
       console.log('WebSocket onOpen');
@@ -103,7 +103,7 @@ function createWebSocketConnection() {
       var dataStr = event.data;
       var json = JSON.parse(dataStr);
       console.log('WebSocket onMessage:', json.data);
-      saveToStorage(json.data.gasPrices);
+      saveToStorage(json.data);
       showBadge();
     };
 
