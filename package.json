@@ -3,7 +3,6 @@
   "scripts": {
     "start": "umi dev",
     "start:chrome": "REACT_ENV=chrome umi build && node ./bin/index && npx webextension-toolbox dev chrome",
-    "dev": "REACT_ENV=chrome umi build && node ./bin/index",
     "build:chrome": "REACT_ENV=chrome umi build && node ./bin/index && npx webextension-toolbox build chrome",
     "build:firefox": "REACT_ENV=firefox umi build && node ./bin/index && npx webextension-toolbox build firefox",
     "analyze": "ANALYZE=1 umi dev",
@@ -11,6 +10,7 @@
   },
   "dependencies": {
     "antd": "^4.13.1",
+    "progressbar.js": "^1.1.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6"
   },

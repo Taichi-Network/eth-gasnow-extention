@@ -8,7 +8,8 @@ const { Option } = Select;
 let inputEl;
 let messageVisible;
 export default function({
-  gasPrices
+  gasPrices,
+  theme,
 }) {
 
   const [badgeTextLevel, setBadgeTextLevel] = useState(1);
@@ -118,27 +119,38 @@ export default function({
             <div className={styles.aboutus_container}>
               <p>{browser.i18n.getMessage('aboutUsTitle')}</p>
               <div>
-                <span>
-                  <a
-                    href="https://www.gasnow.org/"
-                    target="_blank">
+                <a
+                  href="https://www.gasnow.org/"
+                  target="_blank">
+                  <img src={require('@/assets/images/icon_gasnow.svg')} alt=""/>
+                  <span>
                     gasnow.org
-                  </a>
-                </span>
-                <span>
-                  <a
-                    href="https://twitter.com/gasnow_org"
-                    target="_blank">
+                  </span>
+                </a>
+                <a
+                  href="https://twitter.com/gasnow_org"
+                  target="_blank">
+                  <img src={require('@/assets/images/icon_contact_us.svg')} alt=""/>
+                  <span>
                     Contact us
-                  </a>
-                </span>
-                <span>
-                  <a
-                    href="https://github.com/Taichi-Network/eth-gasnow-extention"
-                    target="_blank">
+                  </span>
+                </a>
+                <a
+                  href="https://discord.gg/VSErATqN"
+                  target="_blank">
+                  <img src={require('@/assets/images/icon_Discord.svg')} alt=""/>
+                  <span>
+                    Discord
+                  </span>
+                </a>
+                <a
+                  href="https://github.com/Taichi-Network/eth-gasnow-extention"
+                  target="_blank">
+                  <img src={require(`@/assets/images/${theme}/icon_Source_code.svg`)} alt=""/>
+                  <span>
                     Source code
-                  </a>
-                </span>
+                  </span>
+                </a>
               </div>
             </div>
           </li>
