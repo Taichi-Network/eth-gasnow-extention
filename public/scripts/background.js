@@ -1,6 +1,8 @@
 var timer;
 var ws;
 
+var restful;   // api status
+
 browser.runtime.onInstalled.addListener(onInstalled)
 browser.runtime.onStartup.addListener(onStartup)
 
@@ -34,7 +36,7 @@ function onAlarm() {
 
 function periodFectchGas() {
   initLocalStorage();
-  // 默认启用 websocket
+  // default start connect websocket
   createWebSocketConnection();
 }
 
@@ -42,7 +44,7 @@ function initTimerWorker() {
   if (!timer) {
     getGas()
     timer = setInterval(function () {
-      getGas()
+      getGas();
     }, 1000 * 8)
   } else {
     showPopupContent(arr)
@@ -77,23 +79,35 @@ function getETHPrice() {
 }
 
 function getGas() {
-  let url = "https://www.gasnow.org/api/v3/gas/price?utm_source=GasNowExtension"
-  fetch(url, {
+  console.log('getGas', restful);
+  clearTimeout(timer);
+  // connect WebSocket
+  if (!restful) {
+    createWebSocketConnection();
+    return;
+  }
+  // fetch gas prices
+  fetch("https://www.gasnow.org/api/v3/gas/price?utm_source=GasNowExtension", {
     method: 'get'
   }).then(function (res) {
     return res.json()
   }).then(function (json) {
-    console.log('Fetch Data:', json.data);
-    saveToStorage(json.data)
-    showBadge()
+    console.log('gasPrices:', json.data);
+    saveToStorage(json.data);
+    showBadge();
+    restful = false;
+    timer = setTimeout(getGas, 8000);
   }).catch(function (err) {
     console.log(err)
   })
 }
 
 function createWebSocketConnection() {
+  if (ws) { return }
   if('WebSocket' in window){
+    // ws = new WebSocket('ws://localhost:8005/ws');
     ws = new WebSocket('wss://gasnow-test.sparkpool.com/ws/gasprice');
+    // ws = new WebSocket('wss://gasnow-test.sparkpool.com/ws/gasprice');
 
     ws.onopen = function() {
       console.log('WebSocket onOpen');
@@ -108,27 +122,27 @@ function createWebSocketConnection() {
     };
 
     ws.onclose = function() {
-      // 清除就的定时器
-      clearInterval(timer);
-      // 启用旧版定时刷新 gas 方式
-      initTimerWorker();
+      console.log('WebSocket onClose');
+      ws = undefined;
+      restful = true;
+      getGas();
     };
   }
 }
 
 function saveToStorage(gasPrice) {
-    const arr = [
-      Math.floor((gasPrice.rapid / Math.pow(10, 9))),
-      Math.floor((gasPrice.fast / Math.pow(10, 9))),
-      Math.floor((gasPrice.standard / Math.pow(10, 9))),
-      Math.floor((gasPrice.slow / Math.pow(10, 9))),
-    ]
-    showNotification(arr);
-    // 本地存储
-    browser.storage.local.set({ array: arr })
-      .then(function () {
-        showPopupContent()
-      })
+  const arr = [
+    Math.floor((gasPrice.rapid / Math.pow(10, 9))),
+    Math.floor((gasPrice.fast / Math.pow(10, 9))),
+    Math.floor((gasPrice.standard / Math.pow(10, 9))),
+    Math.floor((gasPrice.slow / Math.pow(10, 9))),
+  ]
+  showNotification(arr);
+  // save gasPrices
+  browser.storage.local.set({ array: arr })
+    .then(function () {
+      showPopupContent()
+    })
 }
 
 function saveETHPriceToStorage(ethPrice) {
@@ -138,7 +152,7 @@ function saveETHPriceToStorage(ethPrice) {
 var noticeId = '';
 function showNotification(data) {
   browser.notifications.getAll().then(function(ids) {
-    console.log(noticeId, ids);
+    // console.log(noticeId, ids);
     Object.keys(ids).forEach(function(id) {
       browser.notifications.clear(id);
     });
@@ -155,14 +169,14 @@ function checkNotificationsStatus(data) {
     noticeValue,
     noticeDateTime
   }) {
-    console.log(int, data[+int], noticeValue, noticeDateTime);
-    // 未设置监控值
+    // console.log(int, data[+int], noticeValue, noticeDateTime);
+    // no alarm value, reutrn
     if (!noticeValue || +noticeValue <= 0) { return }
-    // 当前值大于等于监控值
+    // gas now > alarm value
     if ((data[+int] >= +noticeValue)) {
       return;
     }
-    // 上次提醒时间间隔不足十分钟
+    // lasted notification times < 10min
     if (+noticeDateTime && new Date().getTime() - (+noticeDateTime) < 10 * 60 * 1000) {
       return;
     }
@@ -189,47 +203,25 @@ function showPopupContent() {
     const arr = obj.array
     browser.runtime.sendMessage({ arr })
       .then((res) => {
-        console.log(res);
+        // console.log(res);
       }, (err) => {
-        console.log(err);
+        // console.log(err);
       });
   })
-
-    // var views = browser.extension.getViews({type:'popup'});
-    // if (views.length > 0) {
-    //     // console.log("views.count:" + views.length)
-    //     // console.log(views[0].document.title)
-    //
-    //     for(i = 0; i < views.length; i++) {
-    //         views[i].document.getElementById('slow-value').innerHTML = arr[0]
-    //         views[i].document.getElementById('standard-value').innerHTML = arr[1]
-    //         views[i].document.getElementById('fast-value').innerHTML = arr[2]
-    //         views[i].document.getElementById('rapid-value').innerHTML = arr[3]
-    //     }
-    //
-    // }
 }
 
 function showBadge() {
-    /**
-    browser.storage.local.get(['int', 'array'], function (obj) {
-        const selectedItem = obj.int
-        const selectedGas = obj.array[selectedItem].toString()
-        browser.browserAction.setBadgeText({text: selectedGas})
-    })
-    */
-    let obj = browser.storage.local.get(['int', 'array'])
-    obj.then(function (item) {
-        const selectedItem = item.int
-        const selectedGas = item.array[selectedItem].toString()
-        browser.browserAction.setBadgeText({text: selectedGas})
-    }).catch(function (err) {
-        console.log(err)
-    })
-
+  let obj = browser.storage.local.get(['int', 'array'])
+  obj.then(function (item) {
+    const selectedItem = item.int
+    const selectedGas = item.array[selectedItem].toString()
+    browser.browserAction.setBadgeText({text: selectedGas})
+  }).catch(function (err) {
+    console.log(err)
+  })
 }
 
 function initLocalStorage() {
-    browser.storage.local.clear()
-    browser.storage.local.set({array: [0, 0, 0, 0], int: 1})
+  browser.storage.local.clear()
+  browser.storage.local.set({array: [0, 0, 0, 0], int: 1})
 }
