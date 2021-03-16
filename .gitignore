@@ -18,3 +18,4 @@
 .umi-production
 
 /app
+/packages/*/
