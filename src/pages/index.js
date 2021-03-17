@@ -90,7 +90,7 @@ export default function({
                   </span>
         				</div>
         				<div id={`${key}-value`} className={`${styles.item_value} ${styles[key]}`}>
-                  {gasPrices[index] || 120}
+                  {gasPrices[index]}
                   {renderLoadingPath(+index)}
                 </div>
         				<div className={styles.item_time}>
