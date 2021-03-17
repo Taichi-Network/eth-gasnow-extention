@@ -1,5 +1,6 @@
 html, body, #root {
   height: auto!important;
+  overflow: hidden;
 }
 
 body {
