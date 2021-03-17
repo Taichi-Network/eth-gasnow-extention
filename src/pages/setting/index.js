@@ -46,10 +46,11 @@ export default function({
 
   // change alarm value
   const handleChangeInput = () => {
-    // value <= 0, return
-    if (!+noticeValue) { return }
-    // alarm value >0, save alarm value
-    browser.storage.local.set({ noticeValue }).then(() => {
+    // save alarm value
+    browser.storage.local.set({
+      noticeValue,
+      noticeDateTime: 0,
+    }).then(() => {
       if (!messageVisible) {
         messageVisible = true;
         message.success(browser.i18n.getMessage('noticeSuccessMsg'), () => {
@@ -109,7 +110,9 @@ export default function({
                 value={noticeValue}
                 min={0}
                 ref={(ref) => inputEl = ref}
-                onChange={setNoticeValue}
+                onChange={(value) => {
+                  setNoticeValue(+value > 0 ? value : null);
+                }}
                 onPressEnter={handleChangeInput}
                 onBlur={handleChangeInput}
               />

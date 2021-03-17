@@ -173,9 +173,7 @@ function checkNotificationsStatus(data) {
     // no alarm value, reutrn
     if (!noticeValue || +noticeValue <= 0) { return }
     // gas now > alarm value
-    if ((data[+int] >= +noticeValue)) {
-      return;
-    }
+    if ((data[+int] >= +noticeValue)) { return }
     // lasted notification times < 10min
     if (+noticeDateTime && new Date().getTime() - (+noticeDateTime) < 10 * 60 * 1000) {
       return;
