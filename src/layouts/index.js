@@ -36,7 +36,7 @@ function BasicLayout(props) {
 
   // listening gasPrices
   const handleListeningGasPrices = () => {
-    browser.extension.onMessage.addListener(function(message, messageSender, sendResponse) {
+    browser.runtime.onMessage.addListener(function(message, messageSender, sendResponse) {
       const { arr } = message;
       setGasPrices(arr);
     });
