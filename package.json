@@ -4,8 +4,7 @@
     "start": "umi dev",
     "start:chrome": "REACT_ENV=chrome umi build && node ./bin/index && npx webextension-toolbox dev chrome",
     "start:firefox": "REACT_ENV=firefox umi build && node ./bin/index && npx webextension-toolbox dev firefox",
-    "build:chrome": "REACT_ENV=chrome umi build && node ./bin/index && npx webextension-toolbox build chrome",
-    "build:firefox": "REACT_ENV=firefox umi build && node ./bin/index && npx webextension-toolbox build firefox",
+    "build:all": "umi build && node ./bin/index && npx webextension-toolbox build chrome && npx webextension-toolbox build firefox",
     "analyze": "ANALYZE=1 umi dev",
     "test": "umi test"
   },
