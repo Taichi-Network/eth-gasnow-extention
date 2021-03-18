@@ -83,7 +83,7 @@ export default function({
                   </span>
                 </div>
                 {
-                  +index === +badgeTextLevel ? (
+                  +index === +badgeTextLevel && gasPrices[index] ? (
                     <div
                       className={styles.bgFill}
                       key={Math.random()}
