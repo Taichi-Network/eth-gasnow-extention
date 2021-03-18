@@ -26,11 +26,24 @@ function BasicLayout(props) {
     }
   }
 
+  // validate gas timestamp
+  const validateGasTimestamp = (timestamp) => {
+    const now = new Date().getTime();
+    if (now - timestamp > (10 * 1000)) {
+      browser.runtime.getBackgroundPage().then((bgPage) => {
+        bgPage.closeWebSocket();
+      });
+    }
+  }
+
   // initial gasPrices
   const initLocalStorageGasPrices = () => {
-    browser.storage.local.get(['array']).then(function (obj) {
-      const arr = obj.array
-      setGasPrices(arr);
+    browser.storage.local.get(['array', 'timestamp']).then(function ({
+      array,
+      timestamp,
+    }) {
+      validateGasTimestamp(timestamp);
+      setGasPrices(array);
     });
   }
 

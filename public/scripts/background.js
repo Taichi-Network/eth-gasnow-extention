@@ -1,7 +1,8 @@
 var timer;
 var ws;
 
-var restful;   // api status
+var websocket;
+var reConnectTimes = 0;
 
 browser.runtime.onInstalled.addListener(onInstalled)
 browser.runtime.onStartup.addListener(onStartup)
@@ -22,7 +23,7 @@ function onStartup() {
 function _updateRepeatingAlarms() {
     browser.alarms.get('fetchETHPrice', function (alarm) {
         if (!alarm) {
-            console.log('创建price alarms')
+            console.log('create price alarms')
             browser.alarms.create('fetchETHPrice', {when: Date.now(), periodInMinutes: 5.0})
         }
     })
@@ -37,32 +38,22 @@ function onAlarm() {
 function periodFectchGas() {
   initLocalStorage();
   // default start connect websocket
-  createWebSocketConnection();
+  getGas(true);
+  // initTimerWorker();
 }
 
 function initTimerWorker() {
-  if (!timer) {
-    getGas()
-    timer = setInterval(function () {
-      getGas();
-    }, 1000 * 8)
-  } else {
-    showPopupContent(arr)
-  }
-}
-
-function delayExecute(localDateSeconds, delay) {
-    setTimeout(function () {
-        timer = setInterval(function () {
-            if (localDateSeconds == 0) {
-                getGas()
-                localDateSeconds = 8
-            } else {
-                localDateSeconds--
-            }
-
-        }, 1000 )
-    }, delay)
+  // intervalTimer = setInterval(function() {
+  //   validateGasTimestamp();
+  // }, 8000);
+  // if (!timer) {
+  //   getGas()
+  //   timer = setInterval(function () {
+  //     getGas();
+  //   }, 1000 * 8)
+  // } else {
+  //   showPopupContent(arr)
+  // }
 }
 
 function getETHPrice() {
@@ -78,38 +69,47 @@ function getETHPrice() {
   })
 }
 
-function getGas() {
-  console.log('getGas', restful);
+function fetchGasData() {
   clearTimeout(timer);
-  // connect WebSocket
-  if (!restful) {
-    createWebSocketConnection();
-    return;
-  }
   // fetch gas prices
   fetch("https://www.gasnow.org/api/v3/gas/price?utm_source=GasNowExtension", {
     method: 'get'
   }).then(function (res) {
     return res.json()
   }).then(function (json) {
-    console.log(96, 'gasPrices:', json.data);
     saveToStorage(json.data);
     showBadge();
-    restful = false;
-    timer = setTimeout(getGas, 8000);
+    reConnectTimes = 0;
+    timer = setTimeout(function() {
+      // get gas connect WebSocket
+      getGas(true);
+    }, 8000);
   }).catch(function (err) {
-    console.log(102, 'fetch gas error:', err);
-    // refresh now
-    getGas();
-  })
+    // refresh now 20 times
+    if (reConnectTimes < 20) {
+      reConnectTimes++;
+      getGas()
+    } else {
+      setTimeout(getGas, 5000);
+    }
+  });
 }
 
+/**
+ * Create WebSocket
+ * @param  {Boolean} type  true: reconnect WebSocket, false: fetch api
+ * @return {[type]}        [description]
+ */
 function createWebSocketConnection() {
   if (ws) { return }
-  if('WebSocket' in window){
+  if('WebSocket' in window) {
+    // initial websocket status
+    websocket = false;
+
     // ws = new WebSocket('ws://localhost:8005/ws');
     // ws = new WebSocket('wss://gasnow-test.sparkpool.com/ws/gasprice');
     ws = new WebSocket('wss://www.gasnow.org/ws/gasprice');
+
     ws.onopen = function() {
       console.log('WebSocket onOpen');
     };
@@ -123,14 +123,26 @@ function createWebSocketConnection() {
     };
 
     ws.onclose = function() {
-      console.log('WebSocket onClose');
+      console.log('WebSocket onClose get Gas By WebSocket:', websocket);
       ws = undefined;
-      restful = true;
-      getGas();
+      getGas(websocket);
     };
+  } else {
+    // not support WebSocket, fetch Gas by api;
+    getGas();
   }
 }
 
+/**
+ * get gas prices
+ * @param  {Boolean} type true: connect WebSocket, false: fetch api
+ * @return {[type]}           [description]
+ */
+function getGas(type) {
+  type ? createWebSocketConnection() : fetchGasData();
+}
+
+// save gas prices to storage
 function saveToStorage(gasPrice) {
   const arr = [
     Math.floor((gasPrice.rapid / Math.pow(10, 9))),
@@ -140,14 +152,16 @@ function saveToStorage(gasPrice) {
   ]
   showNotification(arr);
   // save gasPrices
-  browser.storage.local.set({ array: arr })
-    .then(function () {
-      showPopupContent()
-    })
+  browser.storage.local.set({
+    array: arr,
+    timestamp: gasPrice.timestamp
+  }).then(function () {
+    showPopupContent()
+  });
 }
 
 function saveETHPriceToStorage(ethPrice) {
-    browser.storage.local.set({object:{k:'price', v:ethPrice}})
+  browser.storage.local.set({object:{k:'price', v:ethPrice}})
 }
 
 var noticeId = '';
@@ -158,19 +172,18 @@ function showNotification(data) {
       browser.notifications.clear(id);
     });
     noticeId = '';
-    // 检查是否需要弹窗
+    // validate timestamp
     checkNotificationsStatus(data);
   });
 }
 
-// 检查是否可以弹出通知
+// validate lasted times notification date
 function checkNotificationsStatus(data) {
   browser.storage.local.get(['int', 'noticeValue', 'noticeDateTime']).then(function({
     int,
     noticeValue,
     noticeDateTime
   }) {
-    // console.log(int, data[+int], noticeValue, noticeDateTime);
     // no alarm value, reutrn
     if (!noticeValue || +noticeValue <= 0) { return }
     // gas now > alarm value
@@ -183,7 +196,7 @@ function checkNotificationsStatus(data) {
   });
 }
 
-// 创建通知框
+// create notification
 function createNotification(data, int) {
   var titles = ['Rapid', 'Fast', 'Standard', 'Slow'];
   browser.notifications.create(data[int].toString(), {
@@ -220,7 +233,15 @@ function showBadge() {
   })
 }
 
+// initial default value
 function initLocalStorage() {
   browser.storage.local.clear()
   browser.storage.local.set({array: [0, 0, 0, 0], int: 1})
 }
+
+// close WebSocket, fetch gas data
+window.closeWebSocket = function() {
+  if (!ws) { return }
+  websocket = true;
+  ws.close();
+};
