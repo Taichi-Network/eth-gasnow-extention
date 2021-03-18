@@ -45,7 +45,7 @@
     "message": "Alarm"
   },
   "noticeSuccessMsg": {
-    "message": "Done setting!"
+    "message": "Saved!"
   },
   "notificationMsg": {
     "message": "ETH GasPrice forecast by GasNow"
