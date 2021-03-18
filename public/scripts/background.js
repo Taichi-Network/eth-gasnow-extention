@@ -90,16 +90,15 @@ function getGas() {
   fetch("https://www.gasnow.org/api/v3/gas/price?utm_source=GasNowExtension", {
     method: 'get'
   }).then(function (res) {
-    timer = setTimeout(getGas, 8000);
     return res.json()
   }).then(function (json) {
-    console.log('gasPrices:', json.data);
+    console.log(96, 'gasPrices:', json.data);
     saveToStorage(json.data);
     showBadge();
     restful = false;
     timer = setTimeout(getGas, 8000);
   }).catch(function (err) {
-    console.log(err)
+    console.log(102, 'fetch gas error:', err)
     timer = setTimeout(getGas, 8000);
   })
 }
