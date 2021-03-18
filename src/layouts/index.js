@@ -31,7 +31,7 @@ function BasicLayout(props) {
     const now = new Date().getTime();
     if (now - timestamp > (10 * 1000)) {
       browser.runtime.getBackgroundPage().then((bgPage) => {
-        bgPage.closeWs();
+        bgPage.closeWebSocket();
       });
     }
   }

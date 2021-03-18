@@ -1,7 +1,7 @@
 var timer;
 var ws;
 
-var restful;   // api status
+var websocket;
 var reConnectTimes = 0;
 
 browser.runtime.onInstalled.addListener(onInstalled)
@@ -38,7 +38,7 @@ function onAlarm() {
 function periodFectchGas() {
   initLocalStorage();
   // default start connect websocket
-  getGas();
+  getGas(true);
   // initTimerWorker();
 }
 
@@ -79,9 +79,11 @@ function fetchGasData() {
   }).then(function (json) {
     saveToStorage(json.data);
     showBadge();
-    restful = false;
     reConnectTimes = 0;
-    timer = setTimeout(getGas, 8000);
+    timer = setTimeout(function() {
+      // get gas connect WebSocket
+      getGas(true);
+    }, 8000);
   }).catch(function (err) {
     // refresh now 20 times
     if (reConnectTimes < 20) {
@@ -93,13 +95,21 @@ function fetchGasData() {
   });
 }
 
-// Create WebSocket
+/**
+ * Create WebSocket
+ * @param  {Boolean} type  true: reconnect WebSocket, false: fetch api
+ * @return {[type]}        [description]
+ */
 function createWebSocketConnection() {
   if (ws) { return }
   if('WebSocket' in window) {
+    // initial websocket status
+    websocket = false;
+
     // ws = new WebSocket('ws://localhost:8005/ws');
     // ws = new WebSocket('wss://gasnow-test.sparkpool.com/ws/gasprice');
     ws = new WebSocket('wss://www.gasnow.org/ws/gasprice');
+
     ws.onopen = function() {
       console.log('WebSocket onOpen');
     };
@@ -113,20 +123,23 @@ function createWebSocketConnection() {
     };
 
     ws.onclose = function() {
-      console.log('WebSocket onClose');
+      console.log('WebSocket onClose get Gas By WebSocket:', websocket);
       ws = undefined;
-      restful = true;
-      getGas();
+      getGas(websocket);
     };
   } else {
     // not support WebSocket, fetch Gas by api;
-    restful = true;
     getGas();
   }
 }
 
-function getGas() {
-  restful ? fetchGasData() : createWebSocketConnection();
+/**
+ * get gas prices
+ * @param  {Boolean} type true: connect WebSocket, false: fetch api
+ * @return {[type]}           [description]
+ */
+function getGas(type) {
+  type ? createWebSocketConnection() : fetchGasData();
 }
 
 // save gas prices to storage
@@ -171,7 +184,6 @@ function checkNotificationsStatus(data) {
     noticeValue,
     noticeDateTime
   }) {
-    // console.log(int, data[+int], noticeValue, noticeDateTime);
     // no alarm value, reutrn
     if (!noticeValue || +noticeValue <= 0) { return }
     // gas now > alarm value
@@ -228,6 +240,8 @@ function initLocalStorage() {
 }
 
 // close WebSocket, fetch gas data
-window.closeWs = function() {
-  if (ws) { ws.close() }
+window.closeWebSocket = function() {
+  if (!ws) { return }
+  websocket = true;
+  ws.close();
 };
