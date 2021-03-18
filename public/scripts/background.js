@@ -97,9 +97,9 @@ function fetchGasData() {
 function createWebSocketConnection() {
   if (ws) { return }
   if('WebSocket' in window) {
-    ws = new WebSocket('ws://localhost:8005/ws');
+    // ws = new WebSocket('ws://localhost:8005/ws');
     // ws = new WebSocket('wss://gasnow-test.sparkpool.com/ws/gasprice');
-    // ws = new WebSocket('wss://www.gasnow.org/ws/gasprice');
+    ws = new WebSocket('wss://www.gasnow.org/ws/gasprice');
     ws.onopen = function() {
       console.log('WebSocket onOpen');
     };
