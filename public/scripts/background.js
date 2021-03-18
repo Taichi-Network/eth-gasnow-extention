@@ -98,8 +98,9 @@ function getGas() {
     restful = false;
     timer = setTimeout(getGas, 8000);
   }).catch(function (err) {
-    console.log(102, 'fetch gas error:', err)
-    timer = setTimeout(getGas, 8000);
+    console.log(102, 'fetch gas error:', err);
+    // refresh now
+    getGas();
   })
 }
 
@@ -109,7 +110,6 @@ function createWebSocketConnection() {
     // ws = new WebSocket('ws://localhost:8005/ws');
     // ws = new WebSocket('wss://gasnow-test.sparkpool.com/ws/gasprice');
     ws = new WebSocket('wss://www.gasnow.org/ws/gasprice');
-
     ws.onopen = function() {
       console.log('WebSocket onOpen');
     };
