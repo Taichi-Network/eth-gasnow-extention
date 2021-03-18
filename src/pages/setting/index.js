@@ -79,7 +79,7 @@ export default function({
             </div>
             <div>
               <Select
-                style={{ width: 80 }}
+                style={{ width: 105 }}
                 className={styles.select}
                 value={badgeTextLevel}
                 onChange={handleChagneSelect}>
@@ -104,7 +104,7 @@ export default function({
             </div>
             <div>
               <InputNumber
-                style={{ width: 80 }}
+                style={{ width: 105 }}
                 className={styles.input}
                 placeholder={browser.i18n.getMessage('noticePlaceholder')}
                 value={noticeValue}
