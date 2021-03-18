@@ -1,4 +1,5 @@
 var timer;
+var intervalTimer;
 var ws;
 
 var restful;   // api status
@@ -38,17 +39,21 @@ function periodFectchGas() {
   initLocalStorage();
   // default start connect websocket
   createWebSocketConnection();
+  initTimerWorker();
 }
 
 function initTimerWorker() {
-  if (!timer) {
-    getGas()
-    timer = setInterval(function () {
-      getGas();
-    }, 1000 * 8)
-  } else {
-    showPopupContent(arr)
-  }
+  intervalTimer = setInterval(function() {
+    validateGasTimestamp();
+  }, 8000);
+  // if (!timer) {
+  //   getGas()
+  //   timer = setInterval(function () {
+  //     getGas();
+  //   }, 1000 * 8)
+  // } else {
+  //   showPopupContent(arr)
+  // }
 }
 
 function delayExecute(localDateSeconds, delay) {
@@ -76,6 +81,15 @@ function getETHPrice() {
   }).catch(function (err) {
       console.log(err)
   })
+}
+
+// validate gas timestamp choice WebSocket or fetch api
+function validateGasTimestamp() {
+  browser.storage.local.get(['timestamp']).then(function({
+    timestamp,
+  }) {
+    console.log('timestamp:', timestamp, ', now:', new Date().getTime());
+  });
 }
 
 function getGas() {
@@ -140,10 +154,12 @@ function saveToStorage(gasPrice) {
   ]
   showNotification(arr);
   // save gasPrices
-  browser.storage.local.set({ array: arr })
-    .then(function () {
-      showPopupContent()
-    })
+  browser.storage.local.set({
+    array: arr,
+    timestamp: gasPrice.timestamp
+  }).then(function () {
+    showPopupContent()
+  });
 }
 
 function saveETHPriceToStorage(ethPrice) {
