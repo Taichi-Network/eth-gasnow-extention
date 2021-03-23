@@ -80,18 +80,16 @@ function fetchGasData() {
     saveToStorage(json.data);
     showBadge();
     reConnectTimes = 0;
+    // get gas connect WebSocket
     timer = setTimeout(function() {
-      // get gas connect WebSocket
       getGas(true);
     }, 8000);
   }).catch(function (err) {
     // refresh now 20 times
     if (reConnectTimes < 20) {
       reConnectTimes++;
-      getGas()
-    } else {
-      setTimeout(getGas, 5000);
     }
+    timer = setTimeout(getGas, reConnectTimes < 20 ? 1000 : 5000);
   });
 }
 
