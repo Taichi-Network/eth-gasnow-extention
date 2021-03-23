@@ -139,7 +139,7 @@ export default function({
                   </span>
                 </a>
                 <a
-                  href="https://discord.gg/VSErATqN"
+                  href="https://discord.gg/H9XZyZuTBM"
                   target="_blank">
                   <img src={require('@/assets/images/icon_Discord.svg')} alt=""/>
                   <span>
