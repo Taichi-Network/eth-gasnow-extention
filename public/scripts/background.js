@@ -7,97 +7,56 @@ var reConnectTimes = 0;
 browser.runtime.onInstalled.addListener(onInstalled)
 browser.runtime.onStartup.addListener(onStartup)
 
-// chrome.alarms.onAlarm.addListener(onAlarm)
-
-
 function onInstalled() {
-    // _updateRepeatingAlarms()
-    periodFectchGas()
+  periodFectchGas()
 }
 
 function onStartup() {
-    // _updateRepeatingAlarms()
-    periodFectchGas()
+  periodFectchGas()
 }
-
-function _updateRepeatingAlarms() {
-    browser.alarms.get('fetchETHPrice', function (alarm) {
-        if (!alarm) {
-            console.log('create price alarms')
-            browser.alarms.create('fetchETHPrice', {when: Date.now(), periodInMinutes: 5.0})
-        }
-    })
-}
-
 
 function onAlarm() {
-    getETHPrice()
+  getETHPrice()
 }
-
 
 function periodFectchGas() {
-  initLocalStorage();
-  // default start connect websocket
   getGas(true);
-  // initTimerWorker();
-}
-
-function initTimerWorker() {
-  // intervalTimer = setInterval(function() {
-  //   validateGasTimestamp();
-  // }, 8000);
-  // if (!timer) {
-  //   getGas()
-  //   timer = setInterval(function () {
-  //     getGas();
-  //   }, 1000 * 8)
-  // } else {
-  //   showPopupContent(arr)
-  // }
 }
 
 function getETHPrice() {
-  let url = "https://www.gasnow.org/api/v1/eth/price?utm_source=GasNowExtension"
-  fetch(url, {method: 'get'}).then(function (res) {
-    console.log(res.json());
-    return res.json()
-  }).then(function (json) {
-    const ethPrice = json.data
-    saveETHPriceToStorage(ethPrice)
-  }).catch(function (err) {
-      console.log(err)
+  fetch("https://www.gasnow.org/api/v1/eth/price?utm_source=GasNowExtension", {
+    method: 'get'
+  }).then((res) => res.json()
+  ).then((json) => {
+    saveETHPriceToStorage(json.data)
+  }).catch((err) => {
+    console.log(err)
   })
 }
 
+// fetch gas prices
 function fetchGasData() {
   clearTimeout(timer);
-  // fetch gas prices
   fetch("https://www.gasnow.org/api/v3/gas/price?utm_source=GasNowExtension", {
     method: 'get'
-  }).then(function (res) {
-    return res.json()
-  }).then(function (json) {
+  }).then((res) => res.json()
+  ).then((json) => {
     saveToStorage(json.data);
     showBadge();
     reConnectTimes = 0;
     // get gas connect WebSocket
-    timer = setTimeout(function() {
+    timer = setTimeout(() => {
       getGas(true);
     }, 8000);
-  }).catch(function (err) {
-    // refresh now 20 times
-    if (reConnectTimes < 20) {
-      reConnectTimes++;
-    }
+  }).catch((err) => {
+    // refresh 20 times
+    if (reConnectTimes < 20) { reConnectTimes++ }
+    // reconnect api dealy 1s or 5s
     timer = setTimeout(getGas, reConnectTimes < 20 ? 1000 : 5000);
   });
 }
 
-/**
- * Create WebSocket
- * @param  {Boolean} type  true: reconnect WebSocket, false: fetch api
- * @return {[type]}        [description]
- */
+// Create WebSocket
 function createWebSocketConnection() {
   if (ws) { return }
   if('WebSocket' in window) {
@@ -153,7 +112,7 @@ function saveToStorage(gasPrice) {
   browser.storage.local.set({
     array: arr,
     timestamp: gasPrice.timestamp
-  }).then(function () {
+  }).then(() => {
     showPopupContent()
   });
 }
@@ -164,9 +123,9 @@ function saveETHPriceToStorage(ethPrice) {
 
 var noticeId = '';
 function showNotification(data) {
-  browser.notifications.getAll().then(function(ids) {
+  browser.notifications.getAll().then((ids) => {
     // console.log(noticeId, ids);
-    Object.keys(ids).forEach(function(id) {
+    Object.keys(ids).forEach((id) => {
       browser.notifications.clear(id);
     });
     noticeId = '';
@@ -177,11 +136,11 @@ function showNotification(data) {
 
 // validate lasted times notification date
 function checkNotificationsStatus(data) {
-  browser.storage.local.get(['int', 'noticeValue', 'noticeDateTime']).then(function({
+  browser.storage.local.get(['int', 'noticeValue', 'noticeDateTime']).then(({
     int,
     noticeValue,
     noticeDateTime
-  }) {
+  }) => {
     // no alarm value, reutrn
     if (!noticeValue || +noticeValue <= 0) { return }
     // gas now > alarm value
@@ -202,39 +161,35 @@ function createNotification(data, int) {
     title : `${titles[int]}: ${data[+int]} Gwei`,
     message: "ETH GasPrice forecast by GasNow",
     iconUrl: '/images/icon48.png',
-  }).then(function(id) {
+  }).then((id) => {
     browser.storage.local.set({ noticeDateTime: new Date().getTime() })
     noticeId = id;
   });
 }
 
+// send message to popup page
 function showPopupContent() {
-  browser.storage.local.get(['array']).then(function (obj) {
-    const arr = obj.array
-    browser.runtime.sendMessage({ arr })
-      .then((res) => {
-        // console.log(res);
-      }, (err) => {
-        // console.log(err);
-      });
-  })
+  browser.storage.local.get(['array'])
+    .then(({ array }) => {
+      browser.runtime.sendMessage({ array })
+        .then((res) => {
+          // console.log(res);
+        }, (err) => {
+          // console.log(err);
+        });
+    })
 }
 
+// set badge text
 function showBadge() {
-  let obj = browser.storage.local.get(['int', 'array'])
-  obj.then(function (item) {
-    const selectedItem = item.int
-    const selectedGas = item.array[selectedItem].toString()
-    browser.browserAction.setBadgeText({text: selectedGas})
-  }).catch(function (err) {
-    console.log(err)
-  })
-}
-
-// initial default value
-function initLocalStorage() {
-  browser.storage.local.clear()
-  browser.storage.local.set({array: [0, 0, 0, 0], int: 1})
+  browser.storage.local.get(['int', 'array'])
+    .then(({ int, array }) => {
+      browser.browserAction.setBadgeText({
+        text: item.array[+int].toString()
+      });
+    }).catch((err) => {
+      console.log(err)
+    })
 }
 
 // close WebSocket, fetch gas data

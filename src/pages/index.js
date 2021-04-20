@@ -1,17 +1,21 @@
+/**
+ * HomePage
+ * @type {Array}
+ */
 import React, { useState, useEffect } from 'react';
 import { Link } from 'umi';
 
 import styles from './index.less';
 
-export default function({
+const HomePage = ({
   gasPrices = [],
-}) {
+}) => {
 
   const [badgeTextLevel, setBadgeTextLevel] = useState(1);
   // get localStorage default option level
   const getLocalStorageInt = () => {
-    browser.storage.local.get(['int']).then(function (obj) {
-      const { int } = obj;
+    browser.storage.local.get(['int']).then(({ int }) => {
+      console.log('homePage getLocalStorageInt', int);
       setBadgeTextLevel(+int);
     })
   }
@@ -98,3 +102,5 @@ export default function({
     </div>
   );
 }
+
+export default HomePage;

@@ -30,18 +30,19 @@ function BasicLayout(props) {
   const validateGasTimestamp = (timestamp) => {
     const now = new Date().getTime();
     if (now - timestamp > (10 * 1000)) {
-      browser.runtime.getBackgroundPage().then((bgPage) => {
-        bgPage.closeWebSocket();
+      browser.runtime.getBackgroundPage().then((background) => {
+        background.closeWebSocket();
       });
     }
   }
 
   // initial gasPrices
   const initLocalStorageGasPrices = () => {
-    browser.storage.local.get(['array', 'timestamp']).then(function ({
-      array,
+    browser.storage.local.get(['array', 'timestamp']).then(({
+      array = [0, 0, 0, 0],
       timestamp,
-    }) {
+    }) => {
+      console.log('initLocalStorageGasPrices', array);
       validateGasTimestamp(timestamp);
       setGasPrices(array);
     });
@@ -49,9 +50,10 @@ function BasicLayout(props) {
 
   // listening gasPrices
   const handleListeningGasPrices = () => {
-    browser.runtime.onMessage.addListener(function(message, messageSender, sendResponse) {
-      const { arr } = message;
-      setGasPrices(arr);
+    browser.runtime.onMessage.addListener(({
+      array
+    }, messageSender, sendResponse) => {
+      setGasPrices(array);
     });
   }
 
