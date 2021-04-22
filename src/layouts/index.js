@@ -12,6 +12,7 @@ try {
 function BasicLayout(props) {
 
   const [gasPrices, setGasPrices] = useState(['', '', '', '']);
+  const [price, setPrice] = useState({});
 
   const [theme, setTheme] = useState(defaultTheme);
   const handleListeningThemeChange = () => {
@@ -30,34 +31,47 @@ function BasicLayout(props) {
   const validateGasTimestamp = (timestamp) => {
     const now = new Date().getTime();
     if (now - timestamp > (10 * 1000)) {
-      browser.runtime.getBackgroundPage().then((bgPage) => {
-        bgPage.closeWebSocket();
+      browser.runtime.getBackgroundPage().then((background) => {
+        background.closeWebSocket();
       });
     }
   }
 
   // initial gasPrices
   const initLocalStorageGasPrices = () => {
-    browser.storage.local.get(['array', 'timestamp']).then(function ({
-      array,
+    browser.storage.local.get(['array', 'timestamp']).then(({
+      array = [0, 0, 0, 0],
       timestamp,
-    }) {
+    }) => {
+      console.log('initLocalStorageGasPrices', array);
       validateGasTimestamp(timestamp);
       setGasPrices(array);
     });
   }
 
+  const initLocalStorageETHPrice = () => {
+    browser.storage.local.get(['price']).then(({
+      price,
+    }) => {
+      console.log('initLocalStorageETHPrice', price);
+      setPrice(price);
+    });
+  }
+
   // listening gasPrices
   const handleListeningGasPrices = () => {
-    browser.runtime.onMessage.addListener(function(message, messageSender, sendResponse) {
-      const { arr } = message;
-      setGasPrices(arr);
+    browser.runtime.onMessage.addListener(({
+      array
+    }, messageSender, sendResponse) => {
+      setGasPrices(array);
+      initLocalStorageETHPrice();
     });
   }
 
   useEffect(() => {
     router.push('/');
     initLocalStorageGasPrices();
+    initLocalStorageETHPrice();
     handleListeningGasPrices();
     handleListeningThemeChange();
   }, [])
@@ -67,7 +81,7 @@ function BasicLayout(props) {
       {
         React.Children.map(props.children, child => {
           return React.cloneElement(child, null, React.Children.map(child.props.children, child => {
-            return React.cloneElement(child, { gasPrices, theme });
+            return React.cloneElement(child, { gasPrices, price, theme });
           }))
         })
       }

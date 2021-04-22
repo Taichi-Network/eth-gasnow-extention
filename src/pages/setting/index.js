@@ -1,5 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { Select, InputNumber, message } from 'antd';
+/**
+ * SettingPage
+ * @type {[type]}
+ */
+import React, {
+  useState,
+  useEffect
+} from 'react';
+import {
+  Select,
+  InputNumber,
+  message
+} from 'antd';
 import { Link } from 'umi';
 import styles from './styles.less';
 
@@ -7,17 +18,19 @@ const { Option } = Select;
 
 let inputEl;
 let messageVisible;
-export default function({
+
+const SettingPage = ({
   gasPrices,
   theme,
-}) {
+}) => {
 
   const [badgeTextLevel, setBadgeTextLevel] = useState(1);
   const [noticeValue, setNoticeValue] = useState('');
 
   // get localStorage default option
   const getLocalStorageInt = () => {
-    browser.storage.local.get(['int']).then(({ int }) => {
+    browser.storage.local.get(['int']).then(({ int = 1 }) => {
+      console.log('getLocalStorageInt', int);
       setBadgeTextLevel(+int);
     });
   }
@@ -38,10 +51,10 @@ export default function({
   const handleChagneSelect = (int) => {
     setBadgeTextLevel(int);
     // save default option level
-    browser.storage.local.set({ int }).then(function () {
+    browser.storage.local.set({ int }).then(() => {
       // update badgeText
       browser.browserAction.setBadgeText({ text: `${gasPrices[int]}` })
-    })
+    });
   }
 
   // change alarm value
@@ -162,3 +175,5 @@ export default function({
     </div>
   )
 }
+
+export default SettingPage;

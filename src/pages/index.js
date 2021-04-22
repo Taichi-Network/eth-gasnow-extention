@@ -1,30 +1,32 @@
+/**
+ * HomePage
+ * @type {Array}
+ */
 import React, { useState, useEffect } from 'react';
 import { Link } from 'umi';
 
 import styles from './index.less';
 
-export default function({
+const HomePage = ({
+  theme,
+  price,
   gasPrices = [],
-}) {
+}) => {
 
   const [badgeTextLevel, setBadgeTextLevel] = useState(1);
   // get localStorage default option level
   const getLocalStorageInt = () => {
-    browser.storage.local.get(['int']).then(function (obj) {
-      const { int } = obj;
+    browser.storage.local.get(['int']).then(({ int }) => {
+      console.log('homePage getLocalStorageInt', int);
       setBadgeTextLevel(+int);
     })
   }
 
-  // let bar;
-  // const initialProgressBar = () => {
-  //   bar = new ProgressBar.Path('#loading-ath', {
-  //     easing: 'easeInOut',
-  //     duration: 8000
-  //   });
-  //   bar.set(0);
-  //   bar.animate(0.999);
-  // }
+  const language = (browser.i18n.getUILanguage() || 'us').includes('zh') ? 'cny' : 'usd';
+  const symbol = {
+    cny: '￥',
+    usd: '$'
+  };
 
   useEffect(() => {
     getLocalStorageInt();
@@ -53,11 +55,18 @@ export default function({
   return (
     <div className={styles.normal}>
       <div className={styles.header}>
-        <img className={styles.logo_dark} src={require('@/assets/images/GASNOW_dark.svg')} alt="GASNOW"/>
-        <img className={styles.logo_light} src={require('@/assets/images/GASNOW_light.svg')} alt="GASNOW"/>
+        <div className={styles.price}>
+          ETH: {symbol[language]}{(+price[language]).toLocaleString()}
+        </div>
+        <img
+          src={require(`@/assets/images/GASNOW_${theme}.svg`)}
+          alt="GASNOW"
+        />
         <Link to="/setting">
-          <img className={styles.setting_icon_dark} src={require('@/assets/images/setting_dark.svg')} alt="setting"/>
-          <img className={styles.setting_icon_light} src={require('@/assets/images/setting_light.svg')} alt="setting"/>
+          <img
+            src={require(`@/assets/images/setting_${theme}.svg`)}
+            alt="setting"
+          />
         </Link>
       </div>
       <div className={styles.container}>
@@ -75,6 +84,9 @@ export default function({
         				</div>
         				<div id={`${key}-value`} className={`${styles.item_value} ${styles[key]}`}>
                   {gasPrices[index]}
+                </div>
+                <div className={styles.item_price}>
+                  {symbol[language]}{(21000 * price[language] * +gasPrices[index] / 1e9).toFixed(2)}
                 </div>
         				<div className={styles.item_time}>
                   ~{list[key].time}&nbsp;
@@ -98,3 +110,5 @@ export default function({
     </div>
   );
 }
+
+export default HomePage;
