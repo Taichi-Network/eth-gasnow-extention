@@ -150,7 +150,7 @@ function showNotification(data) {
 // validate lasted times notification date
 function checkNotificationsStatus(data) {
   browser.storage.local.get(['int', 'noticeValue', 'noticeDateTime']).then(({
-    int,
+    int = 1,
     noticeValue,
     noticeDateTime
   }) => {
@@ -196,7 +196,7 @@ function showPopupContent() {
 // set badge text
 function showBadge() {
   browser.storage.local.get(['int', 'array'])
-    .then(({ int, array }) => {
+    .then(({ int = 1, array }) => {
       browser.browserAction.setBadgeText({
         text: array[+int].toString()
       });

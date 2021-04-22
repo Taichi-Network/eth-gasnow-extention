@@ -16,7 +16,7 @@ const HomePage = ({
   const [badgeTextLevel, setBadgeTextLevel] = useState(1);
   // get localStorage default option level
   const getLocalStorageInt = () => {
-    browser.storage.local.get(['int']).then(({ int }) => {
+    browser.storage.local.get(['int']).then(({ int = 1 }) => {
       console.log('homePage getLocalStorageInt', int);
       setBadgeTextLevel(+int);
     })
