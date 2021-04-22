@@ -12,6 +12,7 @@ try {
 function BasicLayout(props) {
 
   const [gasPrices, setGasPrices] = useState(['', '', '', '']);
+  const [price, setPrice] = useState({});
 
   const [theme, setTheme] = useState(defaultTheme);
   const handleListeningThemeChange = () => {
@@ -48,18 +49,29 @@ function BasicLayout(props) {
     });
   }
 
+  const initLocalStorageETHPrice = () => {
+    browser.storage.local.get(['price']).then(({
+      price,
+    }) => {
+      console.log('initLocalStorageETHPrice', price);
+      setPrice(price);
+    });
+  }
+
   // listening gasPrices
   const handleListeningGasPrices = () => {
     browser.runtime.onMessage.addListener(({
       array
     }, messageSender, sendResponse) => {
       setGasPrices(array);
+      initLocalStorageETHPrice();
     });
   }
 
   useEffect(() => {
     router.push('/');
     initLocalStorageGasPrices();
+    initLocalStorageETHPrice();
     handleListeningGasPrices();
     handleListeningThemeChange();
   }, [])
@@ -69,7 +81,7 @@ function BasicLayout(props) {
       {
         React.Children.map(props.children, child => {
           return React.cloneElement(child, null, React.Children.map(child.props.children, child => {
-            return React.cloneElement(child, { gasPrices, theme });
+            return React.cloneElement(child, { gasPrices, price, theme });
           }))
         })
       }

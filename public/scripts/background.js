@@ -12,15 +12,32 @@ function onInstalled() {
 }
 
 function onStartup() {
-  periodFectchGas()
-}
-
-function onAlarm() {
-  getETHPrice()
+  periodFectchGas();
 }
 
 function periodFectchGas() {
   getGas(true);
+  createAlarm();
+  onAlarm();
+}
+
+function createAlarm() {
+  console.log('createAlarm');
+  browser.alarms.create('getETHPrice', {
+    // delayInMinutes: 1,
+    periodInMinutes: 1,
+    when: Date.now()
+  });
+}
+
+function onAlarm() {
+  browser.alarms.onAlarm.addListener(() => {
+    getETHPrice();
+  });
+}
+
+function saveEthPrice(price) {
+  browser.storage.local.set({ price });
 }
 
 function getETHPrice() {
@@ -28,7 +45,7 @@ function getETHPrice() {
     method: 'get'
   }).then((res) => res.json()
   ).then((json) => {
-    saveETHPriceToStorage(json.data)
+    saveEthPrice(json.data);
   }).catch((err) => {
     console.log(err)
   })
@@ -117,10 +134,6 @@ function saveToStorage(gasPrice) {
   });
 }
 
-function saveETHPriceToStorage(ethPrice) {
-  browser.storage.local.set({object:{k:'price', v:ethPrice}})
-}
-
 var noticeId = '';
 function showNotification(data) {
   browser.notifications.getAll().then((ids) => {
@@ -185,7 +198,7 @@ function showBadge() {
   browser.storage.local.get(['int', 'array'])
     .then(({ int, array }) => {
       browser.browserAction.setBadgeText({
-        text: item.array[+int].toString()
+        text: array[+int].toString()
       });
     }).catch((err) => {
       console.log(err)
