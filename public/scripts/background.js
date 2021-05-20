@@ -42,7 +42,8 @@ function saveEthPrice(price) {
 
 function getETHPrice() {
   fetch("https://www.gasnow.org/api/v1/eth/price?utm_source=GasNowExtension", {
-    method: 'get'
+    method: 'GET',
+    mode: 'cors',
   }).then((res) => res.json()
   ).then((json) => {
     saveEthPrice(json.data);
@@ -55,7 +56,7 @@ function getETHPrice() {
 function fetchGasData() {
   clearTimeout(timer);
   fetch("https://www.gasnow.org/api/v3/gas/price?utm_source=GasNowExtension", {
-    method: 'get'
+    method: 'GET'
   }).then((res) => res.json()
   ).then((json) => {
     saveToStorage(json.data);
