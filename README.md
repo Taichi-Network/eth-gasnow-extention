@@ -1,3 +1,9 @@
+# Notice
+
+This project has been transferred to other development and maintenance. If you have any questions, please contact the developer in discord: https://discord.com/invite/H9XZyZuTBM
+
+by 2021年06月17日10:37:41
+
 # gasnow-extention
 GasNow extension for browser
 
