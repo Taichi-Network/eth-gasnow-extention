@@ -2,8 +2,8 @@
   "private": true,
   "scripts": {
     "start": "umi dev",
-    "start:chrome": "REACT_ENV=chrome umi build && node ./bin/index && npx webextension-toolbox dev chrome",
-    "start:firefox": "REACT_ENV=firefox umi build && node ./bin/index && npx webextension-toolbox dev firefox",
+    "start:chrome": "cross-env REACT_ENV=chrome umi build && node ./bin/index && npx webextension-toolbox dev chrome",
+    "start:firefox": "cross-env REACT_ENV=firefox umi build && node ./bin/index && npx webextension-toolbox dev firefox",
     "build:all": "umi build && node ./bin/index && npx webextension-toolbox build chrome && npx webextension-toolbox build firefox",
     "analyze": "ANALYZE=1 umi dev",
     "test": "umi test"
@@ -17,6 +17,7 @@
   "devDependencies": {
     "babel-eslint": "^9.0.0",
     "babel-plugin-import": "^1.13.3",
+    "cross-env":"^7.0.3",
     "eslint": "^5.4.0",
     "eslint-config-umi": "^1.4.0",
     "eslint-plugin-flowtype": "^2.50.0",
