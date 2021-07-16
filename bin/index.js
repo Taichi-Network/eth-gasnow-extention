@@ -2,13 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 console.log('Start readFileSync index.html');
-
-if (!fs.existsSync(path.join(__dirname, '../app/'))){
-  fs.mkdirSync(path.join(__dirname, '../app/'));
-}
-fs.copyFileSync(path.join(__dirname, '../public/manifest.json'), path.join(__dirname, '../app/manifest.json'))
-
-let indexHtml = fs.readFileSync(path.join(__dirname, '../app/index.html'), { encoding: 'utf-8', flag: 'r+' });
+let indexHtml = fs.readFileSync(path.join(__dirname, '../app/index.html'), 'utf8');
 // console.log(indexHtml);
 
 // replace index.thml inline script
