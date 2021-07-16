@@ -7,10 +7,6 @@ by 2021年06月17日10:37:41
 # gasnow-extention
 GasNow extension for browser
 
-## Prerequisites
-    yarn
-	nodejs
-
 ## Install
 
 	$ yarn
@@ -18,14 +14,18 @@ GasNow extension for browser
 ## Development
 
     ### chrome
-    yarn start:chrome
 
-Change some code.
+    window1: yarn start:chrome
+
+    // change code
+    // open new window
+
+    window2: yarn run dev
 
 ## Build
-In the new terminal.
 
-    yarn build:all
+    yarn build:chrome
+    yarn build:firefox
 
 ## Environment
 
